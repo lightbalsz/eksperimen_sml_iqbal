@@ -38,7 +38,10 @@ def preprocess_data(raw_data_path, output_data_path):
     df_final = df_final.drop(columns=columns_to_drop, errors='ignore')
 
     # 6. Memastikan folder output tersedia, lalu simpan ke CSV
-    os.makedirs(os.path.dirname(output_data_path), exist_ok=True)
+    dir_name = os.path.dirname(output_data_path)
+    if dir_name:  # Hanya membuat folder jika path memiliki folder induk
+        os.makedirs(dir_name, exist_ok=True)
+        
     df_final.to_csv(output_data_path, index=False)
     
     print(f"Sukses! Data bersih berhasil diekspor ke: {output_data_path}")
@@ -47,9 +50,12 @@ def preprocess_data(raw_data_path, output_data_path):
 if __name__ == "__main__":
     print("Menjalankan preprocessing data secara otomatis...")
 
-    # Menggunakan path relatif yang aman untuk lokal maupun GitHub Actions
-    RAW_DATA_PATH = "customer_churn_dataset-testing-master.csv"
-    OUTPUT_DATA_PATH = "preprocessing\customer_churn_preprocessing.csv"
+    # Menentukan base directory (lokasi folder 'preprocessing')
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    RAW_DATA_PATH = os.path.join(BASE_DIR, "..", "customer_churn_dataset-testing-master.csv")
+    # Menyimpan hasil pembersihan di dalam folder preprocessing menggunakan os.path.join agar aman di Linux/Windows
+    OUTPUT_DATA_PATH = os.path.join(BASE_DIR, "customer_churn_preprocessing.csv")
 
     # Jalankan fungsi
     df_clean = preprocess_data(RAW_DATA_PATH, OUTPUT_DATA_PATH)

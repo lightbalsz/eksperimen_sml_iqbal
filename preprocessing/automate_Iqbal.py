@@ -1,8 +1,9 @@
 import pandas as pd
+import os
 from sklearn.preprocessing import StandardScaler
 
-def preprocess_data(raw_data_path):
-    # 1. Memuat Dataset
+def preprocess_data(raw_data_path, output_data_path):
+    print("Memuat dataset mentah...")
     df = pd.read_csv(raw_data_path)
 
     # Mengidentifikasi kolom numerik yang akan distandarisasi
@@ -21,35 +22,38 @@ def preprocess_data(raw_data_path):
     df_encoded = pd.get_dummies(df_scaled, columns=categorical_cols, drop_first=True)
 
     # 4. Binning (Pengelompokan Data) pada 'Age'
+    # Catatan: Karena 'Age' sudah di-scale di atas, kita gunakan df asli untuk binning agar range usianya tepat
     age_bins = [18, 25, 35, 45, 55, 65]
     age_labels = ['18-24', '25-34', '35-44', '45-54', '55-65']
-    df_encoded['Age_Group'] = pd.cut(df_encoded['Age'], bins=age_bins, labels=age_labels, right=False)
+    df_encoded['Age_Group'] = pd.cut(df['Age'], bins=age_bins, labels=age_labels, right=False)
 
     # 5. Encoding Kolom 'Age_Group' (One-Hot Encoding)
     df_final = pd.get_dummies(df_encoded, columns=['Age_Group'], drop_first=True)
 
-    # 6. Definisikan fitur (X) dan variabel target (y)
-    X = df_final.drop(['CustomerID', 'Churn', 'Age'], axis=1)
-    y = df_final['Churn']
+    # Drop kolom ID dan Age numerik yang sudah tidak dipakai (jika ada CustomerID)
+    columns_to_drop = ['Age']
+    if 'CustomerID' in df_final.columns:
+        columns_to_drop.append('CustomerID')
+        
+    df_final = df_final.drop(columns=columns_to_drop, errors='ignore')
 
-    return X, y
+    # 6. Memastikan folder output tersedia, lalu simpan ke CSV
+    os.makedirs(os.path.dirname(output_data_path), exist_ok=True)
+    df_final.to_csv(output_data_path, index=False)
+    
+    print(f"Sukses! Data bersih berhasil diekspor ke: {output_data_path}")
+    return df_final
 
 if __name__ == "__main__":
-    print("Menjalankan preprocessing data secara langsung...")
+    print("Menjalankan preprocessing data secara otomatis...")
 
-    # Tentukan jalur ke dataset mentah Anda
-    # Sesuaikan path ini jika Anda menjalankannya di lingkungan lokal atau GitHub
-    raw_data_path = "customer_churn_dataset-testing-master.csv"
+    # Menggunakan path relatif yang aman untuk lokal maupun GitHub Actions
+    RAW_DATA_PATH = "customer_churn_dataset-testing-master.csv"
+    OUTPUT_DATA_PATH = "preprocessing\customer_churn_preprocessing.csv"
 
-    # Panggil fungsi preprocessing otomatis
-    X_preprocessed, y_target = preprocess_data(raw_data_path)
+    # Jalankan fungsi
+    df_clean = preprocess_data(RAW_DATA_PATH, OUTPUT_DATA_PATH)
 
-    print("Bentuk X setelah preprocessing:", X_preprocessed.shape)
-    print("Bentuk y setelah preprocessing:", y_target.shape)
-
-    print("\nHead dari X_preprocessed:")
-    # Menggunakan print() daripada display() karena ini untuk skrip Python biasa
-    print(X_preprocessed.head())
-
-    print("\nHead dari y_target:")
-    print(y_target.head())
+    print("Bentuk dataset setelah preprocessing:", df_clean.shape)
+    print("\nIntip 5 data teratas hasil preprocessing:")
+    print(df_clean.head())

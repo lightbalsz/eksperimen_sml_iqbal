@@ -33,9 +33,7 @@ jobs:
 
     # 4. Menjalankan script preprocessing
     - name: Run Preprocessing Script
-      run: |
-        cd preprocessing
-        python automate_Iqbal.py
+      run: python preprocessing/automate_Iqbal.py
 
     # 5. Konfigurasi Git
     - name: Configure Git

@@ -43,6 +43,6 @@ jobs:
 
     # 6. Push data bersih kembali ke repositori
     - name: Commit files
-       run: |
-        git add preprocessing/customer_churn_preprocessing.csv
+      run: |
+        git add preprocessing/
         git diff --quiet && git diff --staged --quiet || (git commit -m "Automated: Update preprocessed data" && git push)

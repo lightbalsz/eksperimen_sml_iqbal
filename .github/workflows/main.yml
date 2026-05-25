@@ -42,7 +42,7 @@ jobs:
         git config --local user.name "GitHub Action"
 
     # 6. Push data bersih kembali ke repositori
-    - name: Commit and Push Cleaned Data
-      run: |
-        git add preprocessing/namadataset_preprocessing/customer_churn_clean.csv || true
+    - name: Commit files
+       run: |
+        git add preprocessing/customer_churn_preprocessing.csv
         git diff --quiet && git diff --staged --quiet || (git commit -m "Automated: Update preprocessed data" && git push)

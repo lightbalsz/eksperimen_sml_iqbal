@@ -35,7 +35,7 @@ jobs:
     - name: Run Preprocessing Script
       run: |
         cd preprocessing
-        python automate_Nama-siswa.py
+        python automate_Iqbal.py
 
     # 5. Konfigurasi Git
     - name: Configure Git
